@@ -1,0 +1,17 @@
+# Large artefacts
+embeddings/
+data/
+*.npy
+*.npz
+*.safetensors
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# OS / editors
+.DS_Store
+.ipynb_checkpoints/
