@@ -19,6 +19,16 @@
 - **One bit per number is enough to find the right pages.** With 4× merging plus 1 bit, a million pages go from **194 GB to 3 GB** and keep **93%** of the quality.
 - **A single vector per page is not enough on its own** (60 to 82%). As a first filter, followed by an exact check of the top 100, it keeps 98.5 to 100%.
 
+## Which method should you use?
+
+| Your situation | Use | 1M pages | Quality |
+|---|---|---:|---:|
+| Fits in RAM | No compression | 194 GB | 100% |
+| Tight memory | Pooling 4× | 49 GB | 99% |
+| Millions of pages, small RAM budget | Pooling 4× + 1 bit | 3 GB | 93% |
+| Max quality at scale | 1 bit + exact check of top 100 | 12 GB | 100% |
+| Normal vector database only | MUVERA + exact check of top 100 | 4 GB | 99.8% |
+
 ## The problem
 
 A company has millions of PDF pages. Someone asks: *"How much did we spend on stock buybacks in 2024?"*
