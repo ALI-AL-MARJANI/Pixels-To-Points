@@ -1,7 +1,7 @@
 """Run every compression method on the saved embeddings and save the numbers.
 
 Same queries, same pages, same model for every method. Writes:
-  results/summary.csv            one row per (model, dataset, method, setting, seed)
+  results/summary_<model>.csv    one row per (dataset, method, setting, seed)
   results/per_query_<model>.json nDCG@5 per query for key methods (error analysis)
 
 Usage: python -m p2p.run_experiments [--models colsmol colqwen2]
@@ -83,16 +83,19 @@ def run_dataset(pages: list, queries: list, meta: dict) -> tuple[list, dict]:
             record("random", f, s, ms, n * dim * 2, n, seed=seed)
 
     # Binarization: 1 bit per dimension, with and without centering.
+    bits = {}
     for method, center in (("binary_nocenter", None), ("binary", binarize.fit_center(pages))):
         t = time.perf_counter()
-        pb = [binarize.pack_signs(p, center) for p in pages]
+        pb = bits[method] = [binarize.pack_signs(p, center) for p in pages]
         comp = time.perf_counter() - t
         qb = [binarize.pack_signs(q, center) for q in queries]
         s, ms = timed(lambda: hamming_maxsim_matrix(qb, pb, dim), len(qids))
         record(method, "1bit", s, ms, n_vec * dim / 8, n_vec, comp_s=comp)
-    s_asym, ms = timed(lambda: binarize.asymmetric_maxsim_matrix(queries, pb, dim), len(qids))
+    # Asymmetric: float query x sign(page); plain signs, so q . sign(d) tracks q . d.
+    s_asym, ms = timed(lambda: binarize.asymmetric_maxsim_matrix(queries, bits["binary_nocenter"], dim),
+                       len(qids))
     record("binary_asym", "1bit", s_asym, ms, n_vec * dim / 8, n_vec)
-    bin_scores = s  # centered symmetric Hamming scores
+    bin_scores = s  # centered symmetric Hamming scores (last loop iteration)
     s, ms2 = timed(lambda: binarize.rescore(bin_scores, queries, pages, RERANK_TOP), len(qids))
     record("binary_rescore", f"top{RERANK_TOP}", s, ms + ms2, n_vec * dim / 8, n_vec)
 
@@ -128,9 +131,8 @@ def main() -> None:
     args = ap.parse_args()
     out = Path(args.out)
     out.mkdir(exist_ok=True)
-    all_rows = []
     for model in args.models:
-        per_query_all = {}
+        per_query_all, all_rows = {}, []
         for root in sorted((Path(args.emb) / model).iterdir()):
             pages, queries, meta = load_embeddings(root)
             print(f"{model}/{root.name}: {len(pages)} pages, {len(queries)} queries", flush=True)
@@ -138,11 +140,11 @@ def main() -> None:
             all_rows += [{"model": model, "dataset": root.name, **r} for r in rows]
             per_query_all[root.name] = per_query
         (out / f"per_query_{model}.json").write_text(json.dumps(per_query_all))
-    with open(out / "summary.csv", "w", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=list(all_rows[0]))
-        writer.writeheader()
-        writer.writerows(all_rows)
-    print(f"wrote {len(all_rows)} rows to {out / 'summary.csv'}")
+        with open(out / f"summary_{model}.csv", "w", newline="") as fh:
+            writer = csv.DictWriter(fh, fieldnames=list(all_rows[0]))
+            writer.writeheader()
+            writer.writerows(all_rows)
+        print(f"wrote {len(all_rows)} rows to {out / f'summary_{model}.csv'}")
 
 
 if __name__ == "__main__":
