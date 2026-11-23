@@ -1,6 +1,7 @@
 <h1 align="center">From Pixels to Points</h1>
 <p align="center"><b>Compressing Visual Document Search</b></p>
 <p align="center"><i>Some AI models search documents by looking at the pages, like we do.<br>They need hundreds of vectors per page. How many does a page really need?</i></p>
+<p align="center"><b>Blog:</b> <a href="https://huggingface.co/spaces/Alii-21/Pixels-To-Points">huggingface.co/spaces/Alii-21/Pixels-To-Points</a></p>
 
 ![Quality kept vs memory per page](assets/pareto.png)
 
