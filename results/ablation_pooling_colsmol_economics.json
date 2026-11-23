@@ -1,0 +1,9 @@
+{
+  "description": "Token pooling ablation, colSmol-256M, economics_v2 (452 pages, 58 queries), nDCG@5. 'vec' = Ward on the unit vectors; 'distrow' = Ward on rows of the (1 - cosine) matrix (colpali-engine reference). 'norm' = cluster means re-normalised to unit length.",
+  "full_fp16": 0.526,
+  "reference_colpali_engine_pooler": {"4": 0.515},
+  "results": {
+    "4":  {"vec_raw": 0.464, "vec_norm": 0.514, "distrow_raw": 0.475, "distrow_norm": 0.511},
+    "16": {"vec_raw": 0.432, "vec_norm": 0.446, "distrow_raw": 0.465, "distrow_norm": 0.487}
+  }
+}
