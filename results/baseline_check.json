@@ -1,0 +1,6 @@
+{
+  "description": "Full-precision baseline on the FULL economics_v2 corpus (452 pages, 58 English queries) vs the published ViDoRe V2 numbers (https://huggingface.co/blog/manu/vidore-v2, table row economics_macro_economy_2024).",
+  "metric": "nDCG@5",
+  "colsmol":  {"ours": 0.526, "published": 0.534},
+  "colqwen2": {"ours": 0.616, "published": 0.615}
+}

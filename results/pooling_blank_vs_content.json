@@ -1,0 +1,8 @@
+{
+ "model": "colqwen2",
+ "dataset": "economics_v2",
+ "factor": 8,
+ "pages": 31,
+ "mean_cluster_size_blank": 10.534665512222928,
+ "mean_cluster_size_content": 9.69022666433684
+}
